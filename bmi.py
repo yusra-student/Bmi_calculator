@@ -1,17 +1,15 @@
 import streamlit as st
 
 # Set page config
-st.set_page_config(page_title="BMI Calculator", page_icon="⚖️", layout="centered")
+st.set_page_config(page_title="BMI Calculator", page_icon="⚖️", layout="wide")
 
 # Custom styles for better UI
 st.markdown(
     """
     <style>
-    .stApp { background-color: #f8f9fa; }
-    .big-font { font-size:22px !important; font-weight:bold; }
-    .success { color: green; font-weight: bold; }
-    .warning { color: orange; font-weight: bold; }
-    .danger { color: red; font-weight: bold; }
+    .stApp { background-color: #f8f9fa; overflow-x: hidden; }
+    .big-font { font-size:18px !important; font-weight:bold; }
+    .success, .warning, .danger { font-weight: bold; }
     </style>
     """, unsafe_allow_html=True
 )
@@ -20,27 +18,23 @@ st.markdown(
 st.title("⚖️ BMI Calculator")
 
 # Weight input
-weight = st.slider("Select your weight (in kgs)", min_value=20, max_value=200, value=70)
+weight = st.slider("Select your weight (kg)", 20, 200, 70, help="Slide to select your weight")
 
 # Height format selection
 status = st.radio("Select your height format:", ("Centimeters", "Meters", "Feet"))
 
 # Height input with unit conversion
-height = 0.0
 if status == "Centimeters":
-    height = st.slider("Enter height in cm", min_value=50, max_value=250, value=170) / 100  # Convert to meters
+    height = st.slider("Enter height in cm", 50, 250, 170, help="Slide to select your height") / 100
 elif status == "Meters":
-    height = st.slider("Enter height in meters", min_value=0.5, max_value=2.5, value=1.7)
+    height = st.slider("Enter height in meters", 0.5, 2.5, 1.7)
 elif status == "Feet":
-    height = st.slider("Enter height in feet", min_value=1.0, max_value=8.0, value=5.6) / 3.28  # Convert to meters
+    height = st.slider("Enter height in feet", 1.0, 8.0, 5.6) / 3.28
 
 # Calculate BMI
-if height > 0:
-    bmi = round(weight / (height ** 2), 2)
-else:
-    bmi = 0
+bmi = round(weight / (height ** 2), 2) if height > 0 else 0
 
-# BMI Interpretation with Emoji Badges
+# BMI Interpretation
 if bmi < 16:
     status_text, color, emoji = "Extremely Underweight", "danger", "⚠️"
 elif bmi < 18.5:
@@ -56,11 +50,12 @@ else:
 st.metric(label="Your BMI", value=f"{bmi}")
 
 # Display status with color coding
-st.markdown(f'<p class="{color} big-font">{emoji} {status_text}</p>', unsafe_allow_html=True)
+st.write(f"### {emoji} {status_text}")
 
-# BMI Progress Bar
-bmi_progress = min(bmi / 40, 1)  # Normalize BMI to fit in 0-1 range
-st.progress(bmi_progress)
+# BMI Progress Bar (Mobile-Friendly)
+col1, col2 = st.columns([3, 1])
+col1.progress(min(bmi / 40, 1))
+col2.write(f"**{bmi}** BMI")
 
 # Additional Health Tips
 st.subheader("💡 Health Tips")
